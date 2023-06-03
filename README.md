@@ -1,3 +1,4 @@
 # perpetuation_dict
-file-storable associative array. 
-This emulates shelve in the standard library
+File-storable associative array. 
+It emulates the standard library shelve.
+And it does not freeze even when dealing with large dicts in low-memory environments.
