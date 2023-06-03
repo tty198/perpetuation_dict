@@ -1,7 +1,6 @@
 import pickle
 import os
 import json
-import shutil
 from typing import TypeVar
 from tqdm.auto import tqdm
 from pickle import UnpicklingError
@@ -75,10 +74,8 @@ class perpetuation_dict(dict[str, TV]):
         
         if os.path.exists(source) and os.path.exists(amp_source):
             try:
-                shutil.copy2(source, backup)
-                shutil.copy2(amp_source, amp_backup)
-                os.remove(source)
-                os.remove(amp_source)
+                os.rename(source, backup)
+                os.rename(amp_source, amp_backup)
                 self.__write(source, amp_source)
             except OSError as ose:
                 os.rename(backup, source)
@@ -135,7 +132,7 @@ class perpetuation_dict(dict[str, TV]):
             return f.read(e)
             
     def sync(self):
-        """synchronises, cache is cleared."""
+        """synchronises, cache is cleared"""
         currentdict = {}
         key, val, da = None, None, bytes()
         try:
@@ -177,7 +174,9 @@ class perpetuation_dict(dict[str, TV]):
 if __name__ == '__main__':
     if False:
         import random
+        import time
         testdir = r"C:\test\test"
+        start1 = time.perf_counter()
         perpd :perpetuation_dict[int] = perpetuation_dict.open(testdir)
         perpd.renew()
         
@@ -194,7 +193,12 @@ if __name__ == '__main__':
         perpd.sync()
         perpd.close()
         del perpd
-    
-        perpd = perpetuation_dict.open(testdir)
-        for key in testkeys:
-            print(perpd[key])
+        start2 = time.perf_counter() - start1
+        print(start2)
+        
+        with perpetuation_dict.open(testdir) as perpd:
+            for key in testkeys:
+                #print(perpd[key])
+                pass
+        print(time.perf_counter() - start2)
+        
