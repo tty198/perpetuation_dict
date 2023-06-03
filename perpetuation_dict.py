@@ -152,12 +152,12 @@ class perpetuation_dict(dict[str, TV]):
         self.__save()
     
     def close(self):
-        """clear and del"""
         self.sync()
         self.cache.clear()
         del self.cache
             
     def update(self, dic:dict):
+        """update from dict"""
         self.cache.update(dic)
         
     def clear(self):
