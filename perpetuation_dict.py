@@ -153,6 +153,7 @@ class perpetuation_dict(dict[str, TV]):
     
     def close(self):
         """clear and del"""
+        self.sync()
         self.cache.clear()
         del self.cache
             
