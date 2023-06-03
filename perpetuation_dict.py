@@ -162,10 +162,9 @@ class perpetuation_dict(dict[str, TV]):
         self.cache.clear()
         self.index.clear()
         self.dellist.clear()
-        
 
 if __name__ == '__main__':
-    if True:
+    if False:
         import random
         testdir = r"C:\test\test"
         perpd :perpetuation_dict[int] = perpetuation_dict.open(testdir)
