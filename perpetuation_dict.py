@@ -16,7 +16,6 @@ class perpetuation_dict(dict[str, TV]):
         self.path :str
         self.index :dict[str, tuple[int, int]] = {}
         self.cache :dict[str, TV] = {}
-        self.dellist :set[str] = set()
     
     def __getitem__(self, key:str)->TV|None:
         try:
@@ -46,6 +45,26 @@ class perpetuation_dict(dict[str, TV]):
     
     def __contains__(self, key:str)->bool:
         return key in self.cache or key in self.index
+
+    def __delitem__(self, key):
+        try:
+            del self.index[key]
+        except KeyError:
+            pass
+        try:
+            del self.cache[key]
+        except KeyError:
+            pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+        
+    def __iter__(self):
+        for k in self.index.keys():
+            yield k
     
     def __save(self):
         #print('save')
@@ -62,7 +81,6 @@ class perpetuation_dict(dict[str, TV]):
                 os.remove(amp_source)
                 self.__write(source, amp_source)
             except OSError as ose:
-                """disc is full"""
                 os.rename(backup, source)
                 os.rename(amp_backup, amp_source)
                 raise Exception('File cant save exception', ose)
@@ -123,7 +141,7 @@ class perpetuation_dict(dict[str, TV]):
         try:
             for k, v in tqdm(self.index.items(), desc='[sync]', leave=False):
                 """load only for updates"""
-                if k in self.dellist or k in self.cache:
+                if k in self.cache:
                     continue
                 data = self.__load(v[0], v[1])
                 key, val, da = k, v, data
@@ -137,14 +155,6 @@ class perpetuation_dict(dict[str, TV]):
         """clear and del"""
         self.cache.clear()
         del self.cache
-    
-    def delete(self, key:str):
-        """delete from both cache and stored data"""
-        if key in self.cache:
-            del self.cache[key]
-            self.dellist.add(key)
-        if key in self.index:
-            self.dellist.add(key)
             
     def update(self, dic:dict):
         self.cache.update(dic)
@@ -159,9 +169,9 @@ class perpetuation_dict(dict[str, TV]):
             self[k]
     
     def renew(self):
+        """clear index and cache"""
         self.cache.clear()
         self.index.clear()
-        self.dellist.clear()
 
 if __name__ == '__main__':
     if False:
